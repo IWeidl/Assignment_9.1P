@@ -3,6 +3,7 @@ package com.iweidl.assignment71p.sqlitehelper;
 import java.util.Date;
 
 public class LostFoundItem {
+    // Properties of each item
     private int itemId;
     private String status;
     private String name;
@@ -11,6 +12,7 @@ public class LostFoundItem {
     private Date date;
     private String location;
 
+    // Constructor for the Item
     public LostFoundItem(int itemId, String status, String name, String phone, String description, Date date, String location) {
         this.itemId = itemId;
         this.status = status;
@@ -21,6 +23,7 @@ public class LostFoundItem {
         this.location = location;
     }
 
+    // Getters and Setters
     public int getItemId() {
         return itemId;
     }

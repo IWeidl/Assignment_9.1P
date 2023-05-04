@@ -19,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
         buttonCreateNew = findViewById(R.id.buttonCreateNew);
         buttonShowAll = findViewById(R.id.buttonShowAll);
 
+
+        // Set onClick listener for both buttons to start their respective Activity
         buttonCreateNew.setOnClickListener(view -> {
             StartCreateNewActivity();
         });

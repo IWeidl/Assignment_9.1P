@@ -17,11 +17,12 @@ import java.util.List;
 import java.util.Locale;
 
 public class LostFoundDBHelper extends SQLiteOpenHelper {
-
+    // Constructor for the database helper
     public LostFoundDBHelper(@Nullable Context context) {
         super(context, Util.DATABASE_NAME, null, Util.DATABASE_VERSION);
     }
 
+    // Build the command to create the table from Util's properties
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String CREATE_TABLE_COMMAND = "CREATE TABLE "
@@ -38,12 +39,15 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_COMMAND);
     }
 
+    // This is called whenever Util.DATABASE_VERSION is incremented
+    // Basically clean slates the DB between upgrades
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Util.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 
+    // Inserst item into the database, taking special care to handle the date field correctly
     public boolean insertItem(String status, String name, String phone, String description, Date date, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -63,11 +67,13 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
+    // Delete an item by its primary key
     public void deleteItem(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        int result = db.delete(Util.TABLE_NAME, Util.ITEM_ID + "=?", new String[]{String.valueOf(id)});
+        db.delete(Util.TABLE_NAME, Util.ITEM_ID + "=?", new String[]{String.valueOf(id)});
     }
 
+    // Get an item from the database using its ID
     public LostFoundItem getItem(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(Util.TABLE_NAME,
@@ -77,6 +83,7 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
                 null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
+            // Extra handling for the date field, can never be too safe when it comes to date validation
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             Date date = null;
             try {
@@ -100,6 +107,7 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    // Same as getItem(), but instead gets all items in db, then iterates over them and returns them in a list
     public List<LostFoundItem> getAllItems() {
         List<LostFoundItem> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
