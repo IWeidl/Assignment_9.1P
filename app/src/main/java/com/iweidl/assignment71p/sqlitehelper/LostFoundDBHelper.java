@@ -8,9 +8,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import java.sql.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class LostFoundDBHelper extends SQLiteOpenHelper {
@@ -36,8 +39,9 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS lost_found");
+        onCreate(sqLiteDatabase);
     }
 
     public boolean insertItem(String status, String name, String phone, String description, Date date, String location) {
@@ -57,6 +61,11 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
         long result = db.insert(Util.TABLE_NAME, null, contentValues);
         db.close();
         return result != -1;
+    }
+
+    public void deleteItem(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete(Util.TABLE_NAME, Util.ITEM_ID + "=?", new String[]{String.valueOf(id)});
     }
 
     public LostFoundItem getItem(int id) {
@@ -89,5 +98,39 @@ public class LostFoundDBHelper extends SQLiteOpenHelper {
             return item;
         }
         return null;
+    }
+
+    public List<LostFoundItem> getAllItems() {
+        List<LostFoundItem> items = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT * FROM " + Util.TABLE_NAME;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date date = null;
+                try {
+                    date = dateFormat.parse(cursor.getString(5));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                LostFoundItem item = new LostFoundItem(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        date,
+                        cursor.getString(6)
+                );
+
+                items.add(item);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return items;
     }
 }

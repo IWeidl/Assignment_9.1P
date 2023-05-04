@@ -8,6 +8,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
     Button buttonCreateNew;
+    Button buttonShowAll;
 
 
     @Override
@@ -16,17 +17,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         buttonCreateNew = findViewById(R.id.buttonCreateNew);
-
-
+        buttonShowAll = findViewById(R.id.buttonShowAll);
 
         buttonCreateNew.setOnClickListener(view -> {
             StartCreateNewActivity();
+        });
+
+        buttonShowAll.setOnClickListener(view -> {
+            StartShowAllActivity();
         });
     }
 
     protected void StartCreateNewActivity()
     {
         Intent intent = new Intent(this, CreateNewActivity.class);
+        startActivity(intent);
+    }
+
+    protected void StartShowAllActivity()
+    {
+        Intent intent = new Intent(this, ShowAllLostAndFoundActivity.class);
         startActivity(intent);
     }
 }
