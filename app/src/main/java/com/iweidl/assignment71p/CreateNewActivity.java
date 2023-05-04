@@ -60,7 +60,7 @@ public class CreateNewActivity extends AppCompatActivity {
 
     private void saveItem() {
         int radioButtonId = radioGroupLostFound.getCheckedRadioButtonId();
-        String status = radioButtonId == R.id.radioLost ? "lost" : "found";
+        String status = radioButtonId == R.id.radioLost ? "Lost" : "Found";
 
         String name = editTextName.getText().toString().trim();
         String phone = editTextPhone.getText().toString().trim();

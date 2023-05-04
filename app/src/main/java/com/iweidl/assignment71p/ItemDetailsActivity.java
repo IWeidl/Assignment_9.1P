@@ -19,6 +19,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
     Button buttonRemove;
     TextView textViewItemDate;
     TextView textViewItemLocation;
+    TextView textViewItemPhone;
 
     private LostFoundDBHelper dbHelper;
     private int itemId;
@@ -33,6 +34,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         buttonRemove = findViewById(R.id.buttonRemove);
         textViewItemDate = findViewById(R.id.textViewItemDate);
         textViewItemLocation = findViewById(R.id.textViewItemLocation);
+        textViewItemPhone = findViewById(R.id.textViewItemPhone);
 
 
         dbHelper = new LostFoundDBHelper(this);
@@ -46,6 +48,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
             textViewTitle.setText(item.getStatus() + ": " + item.getName());
             ShowDateDifference();
             textViewItemLocation.setText("Location: " + item.getLocation());
+            textViewItemPhone.setText("Please Call: " + item.getPhone());
         }
 
         buttonRemove.setOnClickListener(view -> {
@@ -59,7 +62,13 @@ public class ItemDetailsActivity extends AppCompatActivity {
         Date now = Calendar.getInstance().getTime();
         long differenceInMilliseconds = Math.abs(now.getTime() - itemFoundDate.getTime());
         long differenceInDays = TimeUnit.DAYS.convert(differenceInMilliseconds, TimeUnit.MILLISECONDS);
+        String dateDifferenceText;
 
-        textViewItemDate.setText("Found: " + differenceInDays + "  days ago");
+        if (differenceInDays == 0)
+            dateDifferenceText = item.getStatus() + ": " + "Today";
+        else
+            dateDifferenceText = item.getStatus() + ": " + differenceInDays + " days ago";
+
+        textViewItemDate.setText(dateDifferenceText);
     }
 }
