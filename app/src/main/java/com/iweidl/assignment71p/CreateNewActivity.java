@@ -1,10 +1,17 @@
 package com.iweidl.assignment71p;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -12,17 +19,26 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.iweidl.assignment71p.sqlitehelper.LostFoundDBHelper;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -120,6 +136,17 @@ public class CreateNewActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if(!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), "AIzaSyDH3J1iKZFcfxY1jb6Xq5rNdOITHsPFEow");
+        }
+
+        editTextLocation.setOnClickListener(view -> {
+            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(this);
+            startAutocomplete.launch(intent);
+        });
     }
 
     private void saveItem() {
@@ -151,5 +178,21 @@ public class CreateNewActivity extends AppCompatActivity {
             Toast.makeText(this, "Error saving item", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent intent = result.getData();
+                if (intent != null) {
+                    Place place = Autocomplete.getPlaceFromIntent(intent);
+                    editTextLocation.setText(place.getAddress());
+                }
+            } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                // The user canceled the operation.
+                Log.i(TAG, "User canceled autocomplete");
+            }
+        });
 
 }
