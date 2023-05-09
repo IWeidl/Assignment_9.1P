@@ -61,13 +61,14 @@ public class CreateNewActivity extends AppCompatActivity {
     LocationManager locationManager;
     LocationListener locationListener;
 
+    // If Location permissions are granted, check for the current location once ever 200ms, so we can use GetLastKnownLocation() later.
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 200, 0, locationListener);
             }
         }
     }
@@ -95,24 +96,22 @@ public class CreateNewActivity extends AppCompatActivity {
         // Initialize the dbHelper for use later
         dbHelper = new LostFoundDBHelper(this);
 
+        // Get the location system service
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
+        // Though locationListener is needed for locationManager to run correctly, it's not direclty used,
+        // so I have just implemented a blank override
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
             }
         };
 
+        // Check if the app has permissions and if not, request them.
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 200, 0, locationListener);
 
         // saveItem is called when buttonSave is tapped
         buttonSave.setOnClickListener(view -> {
@@ -120,12 +119,14 @@ public class CreateNewActivity extends AppCompatActivity {
         });
 
         buttonGetCurrentLocation.setOnClickListener(view -> {
+            // Get the last known location from the locationManager()
             currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            editTextLocation.setText(currentLocation.toString());
 
             if (currentLocation != null) {
                 Geocoder geocoder = new Geocoder(this, Locale.getDefault());
                 try {
+                    // Use the GeoCoder API to get the address line from the LatLn, setting editTextLocation's text to this value
+                    // This is because I am storing the address line in the database, not the LatLn
                     List<Address> addressList = geocoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
                     if (addressList != null && !addressList.isEmpty()) {
                         Address address = addressList.get(0);
@@ -137,10 +138,13 @@ public class CreateNewActivity extends AppCompatActivity {
             }
         });
 
+        // Initialize Places if it isn't already
         if(!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), "AIzaSyDH3J1iKZFcfxY1jb6Xq5rNdOITHsPFEow");
         }
 
+        // When the editTextLocation field is clicked, open the auto complete activity, passing in
+        // the intent, and using startAutoComplete (defined below)
         editTextLocation.setOnClickListener(view -> {
             List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
 
@@ -179,7 +183,9 @@ public class CreateNewActivity extends AppCompatActivity {
         }
     }
 
-
+    // Instance of ActivityResultLauncher, used because google docs said that startActivityForResult()
+    // is deprecated, and this should be used instead.
+    // Apart from that, it's general logic, if the result is OK, set editTextLocation's text to the returned address
     private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
         result -> {
@@ -189,9 +195,6 @@ public class CreateNewActivity extends AppCompatActivity {
                     Place place = Autocomplete.getPlaceFromIntent(intent);
                     editTextLocation.setText(place.getAddress());
                 }
-            } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
-                // The user canceled the operation.
-                Log.i(TAG, "User canceled autocomplete");
             }
         });
 
