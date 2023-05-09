@@ -9,6 +9,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
     Button buttonCreateNew;
     Button buttonShowAll;
+    Button buttonShowOnMap;
 
 
     @Override
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         buttonCreateNew = findViewById(R.id.buttonCreateNew);
         buttonShowAll = findViewById(R.id.buttonShowAll);
-
+        buttonShowOnMap = findViewById(R.id.buttonShowOnMap);
 
         // Set onClick listener for both buttons to start their respective Activity
         buttonCreateNew.setOnClickListener(view -> {
@@ -27,6 +28,10 @@ public class MainActivity extends AppCompatActivity {
 
         buttonShowAll.setOnClickListener(view -> {
             StartShowAllActivity();
+        });
+
+        buttonShowOnMap.setOnClickListener(view -> {
+            StartShowOnMapActivity();
         });
     }
 
@@ -39,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
     protected void StartShowAllActivity()
     {
         Intent intent = new Intent(this, ShowAllLostAndFoundActivity.class);
+        startActivity(intent);
+    }
+
+    protected void StartShowOnMapActivity()
+    {
+        Intent intent = new Intent(this, ShowOnMapActivity.class);
         startActivity(intent);
     }
 }
