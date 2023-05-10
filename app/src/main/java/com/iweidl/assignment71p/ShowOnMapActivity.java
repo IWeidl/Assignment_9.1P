@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentActivity;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.StrictMode;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,6 +44,10 @@ public class ShowOnMapActivity extends FragmentActivity implements OnMapReadyCal
 
         dbHelper = new LostFoundDBHelper(this);
         items = dbHelper.getAllItems();
+
+        // Needed to allow main thread to execute network requests.
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
     }
 
     /**
