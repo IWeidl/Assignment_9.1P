@@ -69,6 +69,7 @@ public class ShowOnMapActivity extends FragmentActivity implements OnMapReadyCal
         AddAllItems(googleMap);
     }
 
+    // Add all the items from the database onto the map
     private void AddAllItems(GoogleMap googleMap) {
         if (items != null) {
             for (LostFoundItem item : items) {
@@ -82,6 +83,8 @@ public class ShowOnMapActivity extends FragmentActivity implements OnMapReadyCal
         }
     }
 
+    // Use the GeoCoder API to get the address line from the LatLn, setting editTextLocation's text to this value
+    // This is because I am storing the address line in the database, not the LatLn
     private LatLng getLatLngFromAddress(String address) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         LatLng latLng = null;
