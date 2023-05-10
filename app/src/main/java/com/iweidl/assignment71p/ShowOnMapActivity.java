@@ -83,7 +83,7 @@ public class ShowOnMapActivity extends FragmentActivity implements OnMapReadyCal
         }
     }
 
-    // Use the GeoCoder API to get the address line from the LatLn, setting editTextLocation's text to this value
+    // Use the GeoCoder API to get the LatLng from the address line.
     // This is because I am storing the address line in the database, not the LatLn
     private LatLng getLatLngFromAddress(String address) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
